@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+
+    <style>
+        [c-cloak] {
+            display: none;
+        }
+
+        .c-scroller-x {
+            --scroller-x-speed: 100s;
+        }
+
+        .c-scroller-x.opacity-100 {
+            transition: opacity 1s ease-in;
+        }
+
+        .c-scroller-x__wrapper {
+            opacity: 1;
+            animation-name: scroll-left;
+            animation-duration: var(--scroller-x-speed);
+            animation-iteration-count: infinite;
+            animation-timing-function: linear;
+            animation-play-state: running;
+            animation-delay: 0s;
+            will-change: transform;
+        }
+
+        .c-scroller-x--pause .c-scroller-x__wrapper {
+            animation-play-state: paused;
+        }
+
+        .c-scroller-x--hidden {
+            opacity: 0;
+        }
+
+        @keyframes scroll-left {
+            0% {
+                transform: translate3d(0px, 0px, 0px);
+            }
+
+            100% {
+                transform: translate3d(-100%, 0px, 0px);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 h-screen w-full flex justify-center items-center flex-col">
+
+    <div class="w-full overflow-x-hidden">
+        <div data-speed="300s" class="c-scroller-x c-scroller-x--pause bg-gray-200 opacity-0 flex h-full w-full" x-cloak
+            x-data="scrollerX()" x-init="onInit" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave"
+            @resize.window="onResize">
+            <ul class="c-scroller-x__wrapper flex justify-around items-center">
+                <li class="c-scroller-x__item px-4 xl:px-16 py-24">
+                    <img class="object-cover" src="https://picsum.photos/800/400" alt="">
+                </li>
+                <li class="c-scroller-x__item px-4 xl:px-16 py-24">
+                    <img class="object-cover" src="https://picsum.photos/600/700" alt="">
+                </li>
+                <li class="c-scroller-x__item px-4 xl:px-16 py-24">
+                    <img class="object-cover" src="https://picsum.photos/300/500" alt="">
+                </li>
+                <li class="c-scroller-x__item px-4 xl:px-16 py-24">
+                    <img class="object-cover" src="https://picsum.photos/300/400" alt="">
+                </li>
+                <li class="c-scroller-x__item px-4 xl:px-16 py-24">
+                    <img class="object-cover" src="https://picsum.photos/800/600" alt="">
+                </li>
+            </ul>
+        </div>
+    </div>
+    <script>
+        function scrollerX() {
+            return {
+                onInit() {
+
+                    // Set speed if it is defined 
+                    if (this.$el.dataset.scrollSpeed) this.$el.style.setProperty('--scroller-x-speed', this.$el.dataset.scrollSpeed);
+
+                    // Clone and add a second image wrapper.
+                    this.addSecondWrapper();
+
+                    // Show scroller if all images has been loaded.
+                    imagesLoaded(this.$el, () => {
+                        this.setWidth()
+                        this.$el.classList.add("opacity-100")
+                        this.$el.classList.remove("c-scroller-x--pause")
+
+                        // Remove the opacity class after finished transition.
+                        this.$el.addEventListener('transitionend', () => {
+                            this.$el.classList.remove("opacity-0")
+                        })
+                    });
+
+                },
+                // Pause scroll on mouse enter
+                onMouseEnter() {
+                    this.$el.classList.add("c-scroller-x--pause")
+                },
+                // Activate scroll on mouse leave
+                onMouseLeave() {
+                    this.$el.classList.remove("c-scroller-x--pause")
+                },
+                // Set new dimensions when user resizes the window.
+                onResize() {
+                    this.setWidth()
+                },
+                // Total width of all items within a wrapper 
+                getWrapperWidth() {
+
+                    let width = 0;
+                    const wrapper = this.$el.querySelector('.c-scroller-x__wrapper');
+                    const wrapperItems = wrapper.querySelectorAll('.c-scroller-x__item');
+
+                    this.$el.style.width = "99999px";
+                    wrapperItems.forEach(item => {
+                        width = width + item.offsetWidth;
+                    });
+
+                    return width;
+
+                },
+
+                // Set widths to to main container and it's two wrapper elements.
+                setWidth() {
+
+                    let wrapperWidth = this.getWrapperWidth();
+
+                    //A wrapper must be at least one screen width. 
+                    if (wrapperWidth < window.innerWidth) wrapperWidth = window.innerWidth
+
+                    // Main container has to be able to wrap two wrappers.
+                    this.$el.style.width = `${wrapperWidth * 2}px`
+
+                    this.$el.querySelectorAll('.c-scroller-x__wrapper').forEach(item => {
+                        item.style.width = `${wrapperWidth}px`
+                    });
+                },
+
+                // Clone the wrapper and add it to the main container.
+                addSecondWrapper() {
+                    this.$el.appendChild(this.$el.querySelector('.c-scroller-x__wrapper').cloneNode(true))
+                },
+            }
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
+    <script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.js"></script>
+
+</body>
+
+</html>
