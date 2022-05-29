@@ -1,3 +1,4 @@
+New components at: [https://github.com/pixney/frost-components](Frost componebts)
 # Horisontal element scroller using Alpine JS and Tailwind CSS
 
 ![scrollx_03](https://user-images.githubusercontent.com/31292231/112769427-2ab8b280-9021-11eb-9b80-0f8dacd49a5f.gif)
